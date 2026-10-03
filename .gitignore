@@ -1,0 +1,16 @@
+# secrets
+.env
+# licensed / bulky raw data (never commit)
+data/raw/
+data/cache/
+*.dbn
+*.dbn.zst
+*.grib2
+*.zarr/
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store
