@@ -40,20 +40,33 @@ def request(c, schema, buy, max_usd):
     cost = c.metadata.get_cost(**kw)
     size = c.metadata.get_billable_size(**kw)
     print(f"{schema:12s} quote ${cost:,.2f}  billable {size / 1e6:,.1f} MB")
-    path = OUT / f"ng_{schema}.dbn.zst"
-    if buy and not path.exists():
+    if buy:
         if cost > max_usd:
             sys.exit(f"Quote ${cost:.2f} exceeds --max-usd {max_usd}; not downloading.")
-        OUT.mkdir(parents=True, exist_ok=True)
-        c.timeseries.get_range(**kw, path=str(path))
-        print(f"saved {path}")
+        folder = OUT / schema
+        folder.mkdir(parents=True, exist_ok=True)
+        edges = pd.date_range(START, END, freq="MS").append(pd.DatetimeIndex([END]))
+        for a, b in zip(edges[:-1], edges[1:]):        # monthly pieces; one long request stalls
+            path = folder / f"{a:%Y-%m}.dbn.zst"
+            if path.exists() and path.stat().st_size > 0:
+                continue
+            c.timeseries.get_range(**{**kw, "start": f"{a:%Y-%m-%d}", "end": f"{b:%Y-%m-%d}"},
+                                   path=str(path))
+            print(f"saved {path.name} ({path.stat().st_size / 1e6:.1f} MB)", flush=True)
     return cost
+
+
+def read_all(schema):
+    import databento as db
+    parts = [db.DBNStore.from_file(f).to_df() for f in sorted((OUT / schema).glob("*.dbn.zst"))
+             if f.stat().st_size > 0]
+    return pd.concat([p for p in parts if len(p)])
 
 
 def settlements_table():
     """Final-preferred daily settlement per outright contract -> data/raw/databento/ng_settle.csv"""
     import databento as db
-    st = db.DBNStore.from_file(OUT / "ng_statistics.dbn.zst").to_df(map_symbols=True)
+    st = read_all("statistics")
     st = st[st["stat_type"].astype(int) == SETTLEMENT_PRICE].copy()
     # Trade date: ts_ref (session date) when present, else the event's Chicago date.
     ref = pd.to_datetime(st["ts_ref"], utc=True, errors="coerce")
@@ -72,7 +85,7 @@ def settlements_table():
 def definitions_table():
     """One row per outright NG future: id, symbol, maturity, last trade date."""
     import databento as db
-    d = db.DBNStore.from_file(OUT / "ng_definition.dbn.zst").to_df()
+    d = read_all("definition")
     cls = d["instrument_class"].astype(str)
     is_future = cls.isin(["F", "FUTURE", "InstrumentClass.FUTURE"])
     d = d[is_future & (~d["raw_symbol"].str.contains("[- :]"))]
