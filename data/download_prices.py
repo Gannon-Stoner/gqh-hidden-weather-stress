@@ -17,7 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.config import RAW  # noqa: E402
 
 DATASET = "GLBX.MDP3"
-SYMBOLS = ["NG.FUT"]
+# Front six contracts by expiration; records carry the actual instrument_id each day
+SYMBOLS = [f"NG.c.{i}" for i in range(6)]
 START, END = "2020-07-01", "2026-04-30"   # 4 months of sizing warm-up
 OUT = RAW / "databento"
 SETTLEMENT_PRICE = 3
@@ -34,7 +35,7 @@ def client():
 
 
 def request(c, schema, buy, max_usd):
-    kw = dict(dataset=DATASET, symbols=SYMBOLS, stype_in="parent", schema=schema,
+    kw = dict(dataset=DATASET, symbols=SYMBOLS, stype_in="continuous", schema=schema,
               start=START, end=END)
     cost = c.metadata.get_cost(**kw)
     size = c.metadata.get_billable_size(**kw)
