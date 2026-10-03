@@ -28,3 +28,4 @@ Total pre-declared strategy variants: 10 rules (H1, B0, B1, R1–R7) + 5 regress
 | 2026-10-03 14:49 | 8810216 | Pre-registration committed before any price data. |
 | 2026-10-03 14:54 | 867dd63 | Region weights built from 2019 EIA files (demand, EIA-860 wind, DPR basins); no price data loaded. |
 | 2026-10-03 15:25 | (next) | Price download (implementation, not a rule change): Databento continuous `NG.c.0`–`NG.c.5` statistics + definitions, 2020-07-01 to 2026-04-30 (4-month sizing warm-up). Quote $0.16. Full `NG.FUT` parent ($12.46, 9.4 GB, mostly spreads) and raw outright symbols (several did not resolve) were tried as quotes/requests and dropped. No returns computed yet. |
+| 2026-10-03 16:30 | (next) | Weather features frozen before any return was computed: 913 inits, 31/31 members everywhere, b̂ = 0.341. Pre-price checks only: H1 trigger rate 13.4% dev / 6.6% holdout; corr(p_cold, a_z) = 0.76, corr(K, a_z) = 0.05. |
