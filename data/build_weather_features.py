@@ -151,19 +151,24 @@ def extract(workers, limit=None, only=None):
             print(f"[{n}/{len(todo)}] {t:%Y-%m-%d} {dt:.1f}s", flush=True)
 
 
-def combine():
+def combine(out=OUT):
     files = sorted(CACHE.glob("*.npz"))
     dates, Ts, CFs = [], [], []
     for f in files:
-        z = np.load(f)
+        try:
+            z = np.load(f)
+            z["T"]
+        except Exception as e:  # partially written file from a running extraction
+            print(f"skip {f.name}: {e}")
+            continue
         dates.append(pd.Timestamp(f.stem))
         Ts.append(z["T"])
         CFs.append(z["CF"])
         names, wnames = z["names"], z["wnames"]
-    np.savez_compressed(OUT, init=np.array(dates, dtype="datetime64[D]"),
+    np.savez_compressed(out, init=np.array(dates, dtype="datetime64[D]"),
                         T=np.stack(Ts).astype(np.float32), CF=np.stack(CFs).astype(np.float32),
                         names=names, wnames=wnames, k=np.array(K_ALL))
-    print(f"wrote {OUT} with {len(dates)} inits")
+    print(f"wrote {out} with {len(dates)} inits")
 
 
 if __name__ == "__main__":
