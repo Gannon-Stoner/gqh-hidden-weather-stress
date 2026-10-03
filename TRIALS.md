@@ -26,4 +26,4 @@ Total pre-declared strategy variants: 10 rules (H1, B0, B1, R1–R7) + 5 regress
 | Date (ET) | Commit | Entry |
 |---|---|---|
 | 2026-10-03 14:49 | 8810216 | Pre-registration committed before any price data. |
-| 2026-10-03 15:10 | (this) | Region weights built from 2019 EIA files (demand, EIA-860 wind, DPR basins); no price data loaded. |
+| 2026-10-03 14:54 | 867dd63 | Region weights built from 2019 EIA files (demand, EIA-860 wind, DPR basins); no price data loaded. |

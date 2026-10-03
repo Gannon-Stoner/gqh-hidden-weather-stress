@@ -18,7 +18,7 @@ from src.config import RAW  # noqa: E402
 
 DATASET = "GLBX.MDP3"
 SYMBOLS = ["NG.FUT"]
-START, END = "2020-09-01", "2026-04-30"
+START, END = "2020-07-01", "2026-04-30"   # 4 months of sizing warm-up
 OUT = RAW / "databento"
 SETTLEMENT_PRICE = 3
 
